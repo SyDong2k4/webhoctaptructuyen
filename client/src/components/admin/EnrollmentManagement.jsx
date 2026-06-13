@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useContext } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { AppContext } from '../../context/AppContext.jsx'
 
 const EnrollmentManagement = () => {
   const [allCourses, setAllCourses] = useState([]) // Tất cả khóa học
@@ -36,11 +37,20 @@ const EnrollmentManagement = () => {
   const [notifyContent, setNotifyContent] = useState('')
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL
+  const { getToken } = useContext(AppContext)
+
+  const getAuthToken = useCallback(async () => {
+    const token = await getToken()
+    if (!token || token === 'null' || token === 'undefined' || token.length < 10) {
+      throw new Error('Authentication token unavailable')
+    }
+    return token
+  }, [getToken])
 
   // Load all courses
   const loadAllCourses = useCallback(async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = await getAuthToken()
       console.log('Loading courses from:', `${backendUrl}/api/admin/enrollments/search-courses`)
       const response = await axios.get(
         `${backendUrl}/api/admin/enrollments/search-courses?query=`,
@@ -59,7 +69,7 @@ const EnrollmentManagement = () => {
       console.error('Error loading courses:', error)
       toast.error('Không thể tải danh sách khóa học')
     }
-  }, [backendUrl])
+  }, [backendUrl, getAuthToken])
 
   // Select course and load enrollments
   const handleSelectCourse = async (course) => {
@@ -74,7 +84,7 @@ const EnrollmentManagement = () => {
   const loadEnrollments = useCallback(async (courseId, page = 1) => {
     setLoading(true)
     try {
-      const token = localStorage.getItem('token')
+      const token = await getAuthToken()
       console.log('📚 Loading enrollments for courseId:', courseId)
       const response = await axios.get(
         `${backendUrl}/api/admin/enrollments/${courseId}?page=${page}&limit=${studentsPerPage}&search=${searchStudent}&progress=${progressFilter}`,
@@ -91,12 +101,10 @@ const EnrollmentManagement = () => {
     } finally {
       setLoading(false)
     }
-  }, [backendUrl, searchStudent, progressFilter, studentsPerPage])
-
-  // Search available students for adding
+  }, [backendUrl, searchStudent, progressFilter, studentsPerPage, getAuthToken])
   const searchAvailableStudents = useCallback(async (query) => {
     try {
-      const token = localStorage.getItem('token')
+      const token = await getAuthToken()
       const response = await axios.get(
         `${backendUrl}/api/admin/enrollments/search-students?query=${query}&courseId=${selectedCourse._id}`,
         { headers: { Authorization: `Bearer ${token}` } }
@@ -106,7 +114,7 @@ const EnrollmentManagement = () => {
       console.error('Error searching students:', error)
       toast.error('Không thể tìm kiếm học sinh')
     }
-  }, [backendUrl, selectedCourse])
+  }, [backendUrl, selectedCourse, getAuthToken])
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -130,7 +138,7 @@ const EnrollmentManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem('token')
+      const token = await getAuthToken()
       await axios.post(
         `${backendUrl}/api/admin/enrollments/add-student`,
         {
@@ -154,7 +162,7 @@ const EnrollmentManagement = () => {
   // Remove student from course
   const handleRemoveStudent = async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = await getAuthToken()
       await axios.delete(
         `${backendUrl}/api/admin/enrollments/remove-student`,
         {
@@ -178,7 +186,7 @@ const EnrollmentManagement = () => {
   // Export to CSV
   const handleExport = async () => {
     try {
-      const token = localStorage.getItem('token')
+      const token = await getAuthToken()
       const response = await axios.get(
         `${backendUrl}/api/admin/enrollments/export/${selectedCourse._id}`,
         {
@@ -209,7 +217,7 @@ const EnrollmentManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem('token')
+      const token = await getAuthToken()
       const response = await axios.post(
         `${backendUrl}/api/admin/enrollments/notify-class`,
         {
