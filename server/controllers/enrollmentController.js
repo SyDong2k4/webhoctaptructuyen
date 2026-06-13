@@ -25,8 +25,9 @@ export const searchCourses = async (req, res) => {
 
     // Tính enrolledCount từ bảng Enrollment thực tế và thêm thông tin bổ sung
     const coursesWithTitle = await Promise.all(courses.map(async (course) => {
+      const courseContent = Array.isArray(course.courseContent) ? course.courseContent : [];
       // Tính tổng số bài học từ courseContent
-      const totalLectures = course.courseContent.reduce((total, chapter) => {
+      const totalLectures = courseContent.reduce((total, chapter) => {
         return total + (chapter.chapterContent ? chapter.chapterContent.length : 0);
       }, 0);
 
@@ -100,7 +101,8 @@ export const getEnrollments = async (req, res) => {
     let filteredEnrollments = enrollmentsWithProgress;
     if (progress !== 'all') {
       const course = await Course.findById(courseId);
-      const totalLectures = course.courseContent.reduce((acc, chapter) => 
+      const courseContent = Array.isArray(course?.courseContent) ? course.courseContent : [];
+      const totalLectures = courseContent.reduce((acc, chapter) => 
         acc + (chapter.chapterContent?.length || 0), 0
       );
 
@@ -330,7 +332,8 @@ export const exportEnrollments = async (req, res) => {
 
     // Get course for total lectures calculation
     const course = await Course.findById(courseId);
-    const totalLectures = course.courseContent.reduce((acc, chapter) => 
+    const courseContent = Array.isArray(course?.courseContent) ? course.courseContent : [];
+    const totalLectures = courseContent.reduce((acc, chapter) => 
       acc + (chapter.chapterContent?.length || 0), 0
     );
 
