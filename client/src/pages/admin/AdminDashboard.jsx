@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppContext } from '../../context/AppContext'
 import axios from 'axios'
 import { toast } from 'react-toastify'
@@ -7,6 +8,7 @@ const AdminDashboard = () => {
   const [stats, setStats] = useState({})
   const [loading, setLoading] = useState(true)
   const { backendUrl, getToken } = useContext(AppContext)
+  const navigate = useNavigate()
 
   const fetchStats = async () => {
     try {
@@ -104,13 +106,25 @@ const AdminDashboard = () => {
         <div className='bg-white rounded-lg shadow p-6'>
           <h3 className='text-lg font-semibold mb-4'>Quick Actions</h3>
           <div className='space-y-2'>
-            <button className='w-full text-left px-4 py-2 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors'>
+            <button
+              type='button'
+              onClick={() => navigate('/admin/users')}
+              className='w-full text-left px-4 py-2 bg-blue-50 text-blue-700 rounded hover:bg-blue-100 transition-colors'
+            >
               Manage Users
             </button>
-            <button className='w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors'>
+            <button
+              type='button'
+              onClick={() => navigate('/admin/courses')}
+              className='w-full text-left px-4 py-2 bg-green-50 text-green-700 rounded hover:bg-green-100 transition-colors'
+            >
               Review Courses
             </button>
-            <button className='w-full text-left px-4 py-2 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100 transition-colors'>
+            <button
+              type='button'
+              onClick={() => navigate('/admin/approvals')}
+              className='w-full text-left px-4 py-2 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100 transition-colors'
+            >
               Pending Approvals
             </button>
           </div>
