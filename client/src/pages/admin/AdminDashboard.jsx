@@ -122,7 +122,7 @@ const AdminDashboard = () => {
             </button>
             <button
               type='button'
-              onClick={() => navigate('/admin/approvals')}
+              onClick={() => navigate('/admin/educators')}
               className='w-full text-left px-4 py-2 bg-yellow-50 text-yellow-700 rounded hover:bg-yellow-100 transition-colors'
             >
               Pending Approvals
